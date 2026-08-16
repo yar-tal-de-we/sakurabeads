@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple CMS · JSON File Only</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f5f7fa;
+            padding: 2rem;
+            color: #1a202c;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.5rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #edf2f7;
+            color: #2d3748;
+        }
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+        }
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        }
+        .btn-danger {
+            background: #fc8181;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #f56565;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(252, 129, 129, 0.4);
+        }
+        .btn-warning {
+            background: #ecc94b;
+            color: #2d3748;
+        }
+        .btn-warning:hover {
+            background: #d69e2e;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(236, 201, 75, 0.4);
+        }
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .post-form {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+        }
+        .post-form input,
+        .post-form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            margin-bottom: 0.75rem;
+        }
+        .post-form input:focus,
+        .post-form textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        }
+        .post-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .post-form .form-row {
+            display: flex;
+            gap: 0.75rem;
+        }
+        .post-form .form-row input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .post-form .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        .posts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .post-card {
+            background: white;
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid #4299e1;
+            transition: all 0.2s;
+        }
+        .post-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transform: translateX(4px);
+        }
+        .post-card .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .post-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .post-card .post-meta {
+            font-size: 0.8rem;
+            color: #a0aec0;
+            white-space: nowrap;
+        }
+        .post-card .post-content {
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 0.5rem 0 0.75rem 0;
+            word-wrap: break-word;
+        }
+        .post-card .post-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .post-card .post-actions .btn {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        .post-card .post-actions .btn-danger {
+            background: #fed7d7;
+            color: #c53030;
+        }
+        .post-card .post-actions .btn-danger:hover {
+            background: #feb2b2;
+        }
+        .post-card .post-actions .btn-warning {
+            background: #fefcbf;
+            color: #975a16;
+        }
+        .post-card .post-actions .btn-warning:hover {
+            background: #f6e05e;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #a0aec0;
+        }
+        .empty-state h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #718096;
+        }
+        .status-bar {
+            background: #edf2f7;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .status-bar span {
+            font-weight: 500;
+        }
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #2d3748;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.success {
+            background: #48bb78;
+        }
+        .toast.error {
+            background: #fc8181;
+        }
+        .toast.info {
+            background: #4299e1;
+        }
+        .loading-indicator {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #718096;
+        }
+        .loading-indicator .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #4299e1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #e53e3e;
+        }
+        .error-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        .error-state .btn {
+            margin-top: 1rem;
+        }
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .actions {
+                justify-content: stretch;
+            }
+            .actions .btn,
+            .file-input-wrapper {
+                flex: 1;
+                text-align: center;
+            }
+            .post-form .form-row {
+                flex-direction: column;
+            }
+            .post-form .form-row input {
+                margin-bottom: 0.75rem;
+            }
+            .post-card .post-header {
+                flex-direction: column;
+            }
+            .post-card .post-meta {
+                white-space: normal;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>📝 Simple CMS · JSON Only</h1>
+            <div class="actions">
+                <button class="btn btn-success" onclick="exportPosts()">📥 Export JSON</button>
+                <div class="file-input-wrapper">
+                    <button class="btn btn-warning">📤 Import JSON</button>
+                    <input type="file" id="fileInput" accept=".json" />
+                </div>
+                <button class="btn btn-primary" onclick="reloadPosts()">🔄 Reload</button>
+            </div>
+        </header>
+
+        <div class="status-bar" id="statusBar">
+            <span id="postCount">Loading...</span>
+            <span id="storageInfo">📄 Using posts.json</span>
+        </div>
+
+        <div class="post-form" id="postForm">
+            <div class="form-row">
+                <input type="text" id="postTitle" placeholder="Post title..." />
+                <input type="text" id="postAuthor" placeholder="Author name..." />
+            </div>
+            <textarea id="postContent" placeholder="Write your post content here..."></textarea>
+            <div class="form-actions">
+                <button class="btn btn-primary" id="savePostBtn">✏️ Add Post</button>
+                <button class="btn btn-warning" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
+                <button class="btn btn-danger" id="saveToFileBtn" style="display:none;">💾 Save to File</button>
+            </div>
+        </div>
+
+        <div id="postsContainer" class="posts-list">
+            <div class="loading-indicator">
+                <div class="spinner"></div>
+                <p>📂 Loading posts from posts.json...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ─── State ────────────────────────────────────────────────
+        let posts = [];
+        let editingId = null;
+        let isSaving = false;
+
+        // ─── Helpers ──────────────────────────────────────────────
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function updateStatus() {
+            document.getElementById('postCount').textContent =
+                `${posts.length} post${posts.length !== 1 ? 's' : ''}`;
+            document.getElementById('storageInfo').textContent =
+                `📄 posts.json · ${posts.length} entries`;
+        }
+
+        // ─── Load from posts.json ──────────────────────────────────
+        async function loadPosts() {
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = `
+                <div class="loading-indicator">
+                    <div class="spinner"></div>
+                    <p>📂 Loading posts from posts.json...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('posts.json?' + Date.now());
+                if (!response.ok) throw new Error(`HTTP ${response.status} - File not found`);
+
+                const data = await response.json();
+                if (!Array.isArray(data)) throw new Error('Invalid format: expected an array');
+
+                // Validate each post
+                const valid = data.every(p => p.title && p.content && p.id && p.createdAt);
+                if (!valid) throw new Error('Invalid post structure: each post needs id, title, content, createdAt');
+
+                posts = data;
+                renderPosts();
+                showToast(`✅ Loaded ${posts.length} posts from posts.json`, 'success');
+                updateStatus();
+
+            } catch (err) {
+                console.error('Load error:', err);
+                container.innerHTML = `
+                    <div class="error-state">
+                        <h3>❌ Failed to load posts.json</h3>
+                        <p>${err.message}</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #a0aec0;">
+                            Make sure posts.json is in the same folder as this HTML file.
+                        </p>
+                        <button class="btn btn-primary" onclick="loadPosts()" style="margin-top: 1rem;">
+                            🔄 Retry
+                        </button>
+                    </div>
+                `;
+                showToast('❌ Failed to load posts.json', 'error');
+                document.getElementById('postCount').textContent = '⚠️ Error';
+            }
+        }
+
+        // ─── Render Posts ──────────────────────────────────────────
+        function renderPosts() {
+            const container = document.getElementById('postsContainer');
+            if (!posts.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📭 No posts in posts.json</h3>
+                        <p>Add posts using the form above, then export to update the file.</p>
+                    </div>`;
+                updateStatus();
+                return;
+            }
+            const sorted = [...posts].sort((a, b) =>
+                new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            container.innerHTML = sorted.map(post => `
+                <div class="post-card">
+                    <div class="post-header">
+                        <h3>${escapeHtml(post.title)}</h3>
+                        <span class="post-meta">
+                            ${post.author ? `✍️ ${escapeHtml(post.author)} · ` : ''}
+                            📅 ${new Date(post.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric', month: 'short', day: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            })}
+                        </span>
+                    </div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    <div class="post-actions">
+                        <button class="btn btn-warning" onclick="editPost('${post.id}')">✏️ Edit</button>
+                        <button class="btn btn-danger" onclick="deletePost('${post.id}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+            updateStatus();
+        }
+
+        // ─── CRUD Operations ──────────────────────────────────────
+
+        function addPost(title, author, content) {
+            if (!title.trim() || !content.trim()) {
+                showToast('Title and content are required!', 'error');
+                return false;
+            }
+            const post = {
+                id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+                title: title.trim(),
+                author: author.trim() || 'Anonymous',
+                content: content.trim(),
+                createdAt: new Date().toISOString()
+            };
+            posts.push(post);
+            renderPosts();
+            showToast('✅ Post added! Remember to export to save to file.', 'success');
+            return true;
+        }
+
+        function editPost(id) {
+            const post = posts.find(p => p.id === id);
+            if (!post) { showToast('Not found', 'error'); return; }
+            document.getElementById('postTitle').value = post.title;
+            document.getElementById('postAuthor').value = post.author || '';
+            document.getElementById('postContent').value = post.content;
+            document.getElementById('savePostBtn').textContent = '💾 Update Post';
+            document.getElementById('cancelEditBtn').style.display = 'inline-block';
+            document.getElementById('saveToFileBtn').style.display = 'inline-block';
+            editingId = id;
+            document.getElementById('postForm').scrollIntoView({ behavior: 'smooth' });
+            showToast('✏️ Editing: ' + post.title, 'info');
+        }
+
+        function updatePost(id, title, author, content) {
+            const post = posts.find(p => p.id === id);
+            if (!post) { showToast('Not found', 'error'); return false; }
+            if (!title.trim() || !content.trim()) {
+                showToast('Title and content required', 'error');
+                return false;
+            }
+            post.title = title.trim();
+            post.author = author.trim() || 'Anonymous';
+            post.content = content.trim();
+            renderPosts();
+            showToast('✅ Updated! Remember to export to save changes.', 'success');
+            cancelEdit();
+            return true;
+        }
+
+        function deletePost(id) {
+            if (!confirm('Delete this post?')) return;
+            const post = posts.find(p => p.id === id);
+            posts = posts.filter(p => p.id !== id);
+            renderPosts();
+            if (editingId === id) cancelEdit();
+            showToast(`🗑️ Deleted: "${post?.title || 'post'}"`, 'error');
+        }
+
+        function cancelEdit() {
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postAuthor').value = '';
+            document.getElementById('postContent').value = '';
+            document.getElementById('savePostBtn').textContent = '✏️ Add Post';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+            document.getElementById('saveToFileBtn').style.display = 'none';
+            editingId = null;
+        }
+
+        // ─── Export / Import ──────────────────────────────────────
+
+        // Export to JSON file (download)
+        function exportPosts() {
+            if (!posts.length) { showToast('No posts to export', 'error'); return; }
+            const blob = new Blob([JSON.stringify(posts, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'posts.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+            showToast(`📥 Exported ${posts.length} posts to posts.json`, 'success');
+        }
+
+        // Import from JSON file (upload)
+        function importPosts(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) throw new Error('not an array');
+                    const valid = imported.every(p => p.title && p.content && p.id && p.createdAt);
+                    if (!valid) throw new Error('invalid post format');
+
+                    // Replace all posts with imported data
+                    posts = imported;
+                    renderPosts();
+                    showToast(`📤 Imported ${posts.length} posts from file`, 'success');
+                    showToast('💡 Remember to export to save changes to posts.json', 'info');
+                } catch (err) {
+                    showToast('Import failed: ' + err.message, 'error');
+                }
+                document.getElementById('fileInput').value = '';
+            };
+            reader.onerror = () => { showToast('File read error', 'error');
+                document.getElementById('fileInput').value = ''; };
+            reader.readAsText(file);
+        }
+
+        // ─── Reload ──────────────────────────────────────────────
+        function reloadPosts() {
+            if (confirm('Reload from posts.json? Any unsaved changes will be lost.')) {
+                loadPosts();
+            }
+        }
+
+        // ─── Event binding ────────────────────────────────────────
+
+        document.getElementById('savePostBtn').addEventListener('click', () => {
+            const title = document.getElementById('postTitle').value;
+            const author = document.getElementById('postAuthor').value;
+            const content = document.getElementById('postContent').value;
+            if (editingId) {
+                updatePost(editingId, title, author, content);
+            } else {
+                addPost(title, author, content);
+                document.getElementById('postTitle').value = '';
+                document.getElementById('postAuthor').value = '';
+                document.getElementById('postContent').value = '';
+            }
+        });
+
+        document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) importPosts(e.target.files[0]);
+        });
+
+        // Save to File button - shows the user how to save
+        document.getElementById('saveToFileBtn').addEventListener('click', () => {
+            showToast('💡 Click "Export JSON" to save changes to posts.json', 'info');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                const active = document.activeElement;
+                if (active && (active.id === 'postTitle' || active.id === 'postAuthor' || active.id === 'postContent')) {
+                    e.preventDefault();
+                    document.getElementById('savePostBtn').click();
+                }
+            }
+        });
+
+        // ─── Expose globals ───────────────────────────────────────
+        window.addPost = addPost;
+        window.editPost = editPost;
+        window.updatePost = updatePost;
+        window.deletePost = deletePost;
+        window.cancelEdit = cancelEdit;
+        window.exportPosts = exportPosts;
+        window.importPosts = importPosts;
+        window.loadPosts = loadPosts;
+        window.reloadPosts = reloadPosts;
+        window.showToast = showToast;
+
+        // ─── Start ─────────────────────────────────────────────────
+        loadPosts();
+        console.log('📝 Simple CMS · JSON file only mode');
+        console.log('📄 Data source: posts.json');
+    </script>
+
+</body>
+</html>

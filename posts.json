@@ -1,0 +1,37 @@
+[
+    {
+        "id": "ext1",
+        "title": "Getting Started with External Data",
+        "author": "Developer",
+        "content": "This post was loaded from an external JSON file. The CMS automatically fetches this data when no existing posts are found in localStorage.",
+        "createdAt": "2026-08-16T10:30:00.000Z"
+    },
+    {
+        "id": "ext2",
+        "title": "Why Use External Data?",
+        "author": "Content Team",
+        "content": "External data files make it easy to pre-populate your CMS with content. You can maintain your content in a separate file and version it alongside your code.",
+        "createdAt": "2026-08-15T14:20:00.000Z"
+    },
+    {
+        "id": "ext3",
+        "title": "Tips for JSON Data",
+        "author": "Admin",
+        "content": "Make sure each post has a unique 'id', a 'title', 'content', and a valid 'createdAt' timestamp in ISO format. The CMS validates these fields during import.",
+        "createdAt": "2026-08-14T09:15:00.000Z"
+    },
+    {
+        "id": "ext4",
+        "title": "Import vs. External Loading",
+        "author": "User",
+        "content": "The external file loads only on first visit (when localStorage is empty). After that, your edits are saved locally. Use the Import button to merge additional data anytime.",
+        "createdAt": "2026-08-13T16:45:00.000Z"
+    },
+    {
+        "id": "ext5",
+        "title": "Customizing Your Content",
+        "author": "Editor",
+        "content": "Feel free to edit this JSON file to add your own posts. Add more objects to the array, and the CMS will load them all on first run.",
+        "createdAt": "2026-08-12T11:00:00.000Z"
+    }
+]
